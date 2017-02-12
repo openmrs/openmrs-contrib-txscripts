@@ -139,7 +139,7 @@ fetch(`${TRANSIFEX_BASE}project/OpenMRS?details=true`, fetchOpts)
         .then(() => {
             console.log("DONE!");
             console.log("Reviewed: " + totalMarkedAsReviewed);
-            console.log("(ignored " + totalAlreadyReviewed + " that were already reviewed");
+            console.log("(ignored " + totalAlreadyReviewed + " that were already reviewed)");
             return "DONE";
         })
         .catch(handleError);
