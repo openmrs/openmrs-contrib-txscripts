@@ -10,6 +10,7 @@ const EXCLUDE_RESOURCES = ["openmrs-core"];
 const IS_DEBUG = process.env.NODE_ENV !== 'production';
 
 let totalMarkedAsReviewed = 0;
+let totalFailedToMarkAsReviewed = 0;
 let totalAlreadyReviewed = 0;
 
 const fetchOpts = {
@@ -76,8 +77,14 @@ function curryHandleLanguage(resource, languageCode) {
             promises.push(
                     fetch(uri, useOpts)
                             .then(response => {
-                                console.log(`Marked as reviewed: ${resource.slug} ${languageCode} ${it.key}=${it.translation}`);
-                                totalMarkedAsReviewed += 1;
+                                if (response.ok) {
+                                    console.log(`Marked as reviewed: ${resource.slug} ${languageCode} ${it.key}=${it.translation}`);
+                                    totalMarkedAsReviewed += 1;
+                                }
+                                else {
+                                    console.log(`Failed to mark as reviewed: ${resource.slug} ${languageCode} ${it.key}=${it.translation}: ${response.status} ${response.statusText}`);
+                                    totalFailedToMarkAsReviewed += 1;
+                                }
                             })
                             .catch(curryHandleError("PUT " + uri))
             );
@@ -139,6 +146,7 @@ fetch(`${TRANSIFEX_BASE}project/OpenMRS?details=true`, fetchOpts)
         .then(() => {
             console.log("DONE!");
             console.log("Reviewed: " + totalMarkedAsReviewed);
+            console.log("Failed to mark: " + totalFailedToMarkAsReviewed);
             console.log("(ignored " + totalAlreadyReviewed + " that were already reviewed)");
             return "DONE";
         })
